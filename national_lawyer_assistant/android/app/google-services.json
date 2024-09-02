@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "688748519776",
+    "project_id": "national-lawyer-assistant",
+    "storage_bucket": "national-lawyer-assistant.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:688748519776:android:975f8d2e744b9cf7a73e05",
+        "android_client_info": {
+          "package_name": "com.example.national_lawyer_assistant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "688748519776-3adbp0mqm6ldg9gmmr7n520avpjrog1j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHkwvFqhaXCGFHi_1mLQ1foZYPtBL3WM8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "688748519776-3adbp0mqm6ldg9gmmr7n520avpjrog1j.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "688748519776-47qj5von05gpfd05havkuk2h5cjtb61k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nationalLawyerAssistant"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
