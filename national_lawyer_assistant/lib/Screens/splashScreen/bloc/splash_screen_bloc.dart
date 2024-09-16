@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
-import 'package:national_lawyer_assistant/utils/checkSignInMethod.dart';
+import 'package:national_lawyer_assistant/utils/sign_in_functions.dart';
 
 part 'splash_screen_event.dart';
 part 'splash_screen_state.dart';
@@ -17,7 +17,7 @@ class SplashScreenBloc extends Bloc<SplashScreenEvent, SplashScreenState> {
   FutureOr<void> splashScreenInitalEvent(
       SplashScreenInitalEvent event, Emitter<SplashScreenState> emit) async {
     emit(SplashScreenLoading());
-    await Future.delayed(const Duration(seconds: 8));
+    await Future.delayed(const Duration(seconds: 3));
     event.splashScreenBloc.add(SplashScreenDoneEvent());
   }
 
@@ -26,7 +26,7 @@ class SplashScreenBloc extends Bloc<SplashScreenEvent, SplashScreenState> {
     User? user = FirebaseAuth.instance.currentUser;
     String signInMethod = "Unknown";
     if (user != null) {
-      signInMethod = checkSignInMethod(user);
+      signInMethod = LoginFunctions.checkSignInMethod(user);
     }
     if (signInMethod == "Phone Sign-In") {
       emit(SplashScreenToHome());

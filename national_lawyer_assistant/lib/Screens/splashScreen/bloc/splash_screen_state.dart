@@ -9,14 +9,6 @@ final class SplashScreenInitial extends SplashScreenState {}
 
 class SplashScreenLoading extends SplashScreenState {}
 
-class SplashScreenLoaded extends SplashScreenState {}
-
-class SplashScreenError extends SplashScreenState {
-  final String message;
-
-  SplashScreenError(this.message);
-}
-
 class SplashScreenToHome extends SplashScreenActionState {}
 
 class SplashScreenToLogin extends SplashScreenActionState {}

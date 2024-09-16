@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:national_lawyer_assistant/home.dart';
+import 'package:national_lawyer_assistant/utils/const.dart';
 import 'package:national_lawyer_assistant/utils/create_route.dart';
-// import 'package:national_lawyer_assistant/views/login/ui/login.dart';
-import 'package:national_lawyer_assistant/Login/Screens/login_screen.dart';
 import 'package:national_lawyer_assistant/Screens/splashScreen/bloc/splash_screen_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../Login/Google Login/verify_email.dart';
+import '../../signup/ui/verify_email.dart';
 import '../../Login/ui/login.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -51,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
         switch (state.runtimeType) {
           case SplashScreenLoading:
             return Scaffold(
-              backgroundColor: Colors.purple[900],
+              backgroundColor: primary,
               body: Column(
                 children: [
                   Spacer(), // Pushes the content below to the center of the screen
@@ -64,8 +63,6 @@ class _SplashScreenState extends State<SplashScreen> {
                           width: 150,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.grey[
-                                200], // Optional: Background color if the image is transparent
                           ),
                           child: ClipOval(
                             child: Image.asset(
@@ -79,12 +76,12 @@ class _SplashScreenState extends State<SplashScreen> {
                           padding: const EdgeInsets.all(20.0),
                           child: Shimmer.fromColors(
                             direction: ShimmerDirection.ltr,
-                            baseColor: Colors.white,
-                            highlightColor: Colors.purple[200]!,
+                            baseColor: onSecondary,
+                            highlightColor: purple200,
                             child: Text(
                               'National Lawyer Assistant',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: onSecondary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 24,
                               ),
@@ -105,13 +102,12 @@ class _SplashScreenState extends State<SplashScreen> {
                             shape: BoxShape.rectangle,
                             borderRadius:
                                 BorderRadius.circular(10), // Rounded edges
-                            color: Colors.grey[
-                                200], // Optional: Background color if the image is transparent
+                            color: onSecondary,
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.asset(
-                              'assets/images/logo.png',
+                              'assets/images/LogixosLogo.png',
                               fit: BoxFit
                                   .cover, // Ensures the image fits inside the container
                             ),
@@ -119,24 +115,24 @@ class _SplashScreenState extends State<SplashScreen> {
                         ),
                         title: Shimmer.fromColors(
                           direction: ShimmerDirection.ltr,
-                          baseColor: Colors.white,
-                          highlightColor: Colors.purple[400]!,
+                          baseColor: onSecondary,
+                          highlightColor: purple400,
                           child: Text(
                             'Powered by',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: onSecondary,
                               fontSize: 16,
                             ),
                           ),
                         ),
                         subtitle: Shimmer.fromColors(
                           direction: ShimmerDirection.ltr,
-                          baseColor: Colors.white,
-                          highlightColor: Colors.purple[400]!,
+                          baseColor: onSecondary,
+                          highlightColor: purple400,
                           child: Text(
                             'LOGIXOS TECH',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: onSecondary,
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
                             ),
@@ -152,26 +148,14 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             );
 
-          case SplashScreenLoaded:
-            return const Scaffold(
-              body: Center(
-                  child: Center(
-                child: Image(
-                    height: 150,
-                    width: 150,
-                    image: AssetImage('assets/images/logo.png')),
-              )),
-            );
-          case SplashScreenError:
+          default:
             return Scaffold(
               body: Center(
-                child: Text((state as SplashScreenError).message),
-              ),
-            );
-          default:
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.white,
+                  color: purple500,
+                  strokeWidth: 5,
+                ),
               ),
             );
         }

@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:national_lawyer_assistant/Login/Services/authentication.dart';
-import 'package:national_lawyer_assistant/Login/Widget/snack_bar.dart';
+import 'package:national_lawyer_assistant/utils/Services/authentication.dart';
 import 'package:national_lawyer_assistant/chatbot.dart';
+import 'package:national_lawyer_assistant/utils/Widget/snack_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white24,
+              color: Colors.purple[100],
               borderRadius: BorderRadius.circular(20),
             ),
             padding: EdgeInsets.all(5),
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: Colors.purple[900],
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Padding(
@@ -138,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Theme.of(context).colorScheme.secondary,
                         fontSize: 14),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue, width: 2),
+                      borderSide: BorderSide(color: Colors.black, width: 2),
                       borderRadius: BorderRadius.circular(24),
                     ),
                   ),

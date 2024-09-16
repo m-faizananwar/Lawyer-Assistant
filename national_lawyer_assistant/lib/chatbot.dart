@@ -6,12 +6,13 @@ import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:national_lawyer_assistant/Login/Google%20Login/google_login.dart';
-import 'package:national_lawyer_assistant/Login/Screens/login_screen.dart';
-import 'package:national_lawyer_assistant/Login/Services/authentication.dart';
-import 'package:national_lawyer_assistant/Login/Widget/button.dart';
-import 'package:national_lawyer_assistant/Login/Widget/snack_bar.dart';
-import 'package:national_lawyer_assistant/chathistory.dart';
+import 'package:national_lawyer_assistant/utils/Services/google_login.dart';
+import 'package:national_lawyer_assistant/utils/Services/authentication.dart';
+import 'package:national_lawyer_assistant/utils/Widget/button.dart';
+import 'package:national_lawyer_assistant/utils/chathistory.dart';
+import 'package:national_lawyer_assistant/utils/const.dart';
+import 'package:national_lawyer_assistant/utils/const.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import 'Screens/Login/ui/login.dart';
@@ -26,9 +27,12 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
-  ChatUser currentUser = ChatUser(id: "0", firstName: "User");
-  ChatUser laxiPakUser = ChatUser(
-      id: "1", firstName: "LaxiPAK", profileImage: "assets/images/box.png");
+  ChatUser currentUser = ChatUser(
+      id: "0", firstName: "User", profileImage: "assets/images/user.png");
+  ChatUser botUser = ChatUser(
+      id: "1",
+      firstName: "Law App",
+      profileImage: "assets/images/ErrorImage.png");
   bool messagePending = false;
   List<ChatUser> users = [];
   List<ChatMessage> messages = [];
@@ -55,16 +59,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final String logoAsset = isDarkMode
-        ? "assets/images/ChatAppLogo.png"
-        : "assets/images/ChatAppLogoDark.png";
-    laxiPakUser.profileImage = logoAsset;
+    final String logoAsset = 'assets/images/ChatBotLogo.png';
+    String userLogo = 'assets/images/user.png';
+    botUser.profileImage = logoAsset;
+    if (user.photoURL != null) {
+      userLogo = user.photoURL.toString();
+      currentUser.profileImage = userLogo;
+    }
     return Scaffold(
       key: _scaffoldKey,
       drawer: Drawer(
-        shadowColor: Theme.of(context).colorScheme.secondary,
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        shadowColor: surface,
+        backgroundColor: primary,
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -74,22 +80,27 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(30),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
                       children: [
                         Icon(
-                          Icons.home,
-                          color: Theme.of(context).colorScheme.secondary,
+                          Icons.back_hand,
+                          color: Colors.yellow,
                         ),
                         SizedBox(width: 10),
                         Expanded(
-                          child: Text(
-                            "Welcome! How can we assist you today?",
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSecondary,
-                              fontSize: 18,
+                          child: Shimmer.fromColors(
+                            baseColor: purple500,
+                            highlightColor: purple200,
+                            child: Text(
+                              "Welcome, I\'m your personal Assistant! Nice to meet you. ",
+                              style: TextStyle(
+                                fontFamily: 'Suse',
+                                color: primary,
+                                fontSize: 18,
+                              ),
                             ),
                           ),
                         ),
@@ -102,23 +113,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     ListTile(
                       onTap: () async {
-                        var chatCollectionRef = FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(user.uid)
-                            .collection('chats');
-                        QuerySnapshot chatSnapshot =
-                            await chatCollectionRef.get();
-                        int newChatCount = chatSnapshot.docs.length;
-
                         setState(() {
-                          chatCount = newChatCount;
-                          messages = [];
                           _scaffoldKey.currentState?.closeDrawer();
                         });
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => ChatScreen()));
                       },
                       leading: CircleAvatar(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.secondary,
                           child: ClipRRect(
                               borderRadius: BorderRadius.circular(50),
                               child: Image.asset(
@@ -128,25 +129,29 @@ class _ChatScreenState extends State<ChatScreen> {
                       title: Text(
                         "Start New Chat",
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w400),
+                            color: onSecondary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400),
                       ),
                     ),
                     ListTile(
                       leading: Icon(
                         Icons.dashboard_customize_outlined,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: onSecondary,
                       ),
                       title: Text(
-                        "About LaxiPAK",
+                        "About Us",
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w400),
+                            color: onSecondary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16.0, vertical: 4),
                       child: Divider(
-                        color: Theme.of(context).colorScheme.onPrimary,
+                        color: onSecondary,
                       ),
                     ),
                     Expanded(
@@ -184,18 +189,29 @@ class _ChatScreenState extends State<ChatScreen> {
 
                               return ListTile(
                                 leading: CircleAvatar(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 169, 203, 230),
-                                  child: Text(
-                                    "${index + 1}",
-                                    style: TextStyle(color: Colors.white),
+                                  backgroundColor: onPrimary,
+                                  child: Shimmer.fromColors(
+                                    baseColor: surface,
+                                    highlightColor: purple200,
+                                    child: Text(
+                                      "${index + 1}",
+                                      style: TextStyle(
+                                          color: primary,
+                                          fontFamily: 'Suse',
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 ),
-                                title: Text(
-                                  "${message.substring(0, safeLength)}...",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400),
+                                title: Shimmer.fromColors(
+                                  baseColor: surface,
+                                  highlightColor: Colors.deepPurple[300]!,
+                                  child: Text(
+                                    "${message.substring(0, safeLength)}...",
+                                    style: TextStyle(
+                                        fontFamily: 'Suse',
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w200),
+                                  ),
                                 ),
                                 onTap: () async {
                                   List<ChatMessage> msgs =
@@ -216,120 +232,135 @@ class _ChatScreenState extends State<ChatScreen> {
                   ],
                 ),
               ),
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.onSecondary,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: (user.photoURL != null)
-                        ? Image.network(
-                            "${user.photoURL}",
-                            fit: BoxFit.cover,
-                          )
-                        : Container(
-                            color: Theme.of(context).colorScheme.onSecondary,
-                            child: Text("L"),
-                          ),
+              Container(
+                decoration: BoxDecoration(
+                    color: onSecondary,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(120),
+                    )),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(50),
+                        child: (user.photoURL != null)
+                            ? Image.network(
+                                "${userLogo}",
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                userLogo,
+                                fit: BoxFit.cover,
+                              )),
                   ),
+                  title: Text(
+                    "${(user.displayName == '') ? "User" : user.displayName}",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+                  ),
+                  trailing: Icon(Icons.more_horiz),
                 ),
-                title: Text(
-                  "${(user.displayName == '') ? "User" : user.displayName}",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-                ),
-                trailing: Icon(Icons.more_horiz),
               ),
-              AppButton(
-                onTab: () async {
-                  await FirebaseServices().googleSignOut();
-                  await AuthServices().logOut();
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => LoginPage(),
-                    ),
-                  );
-                },
-                text: "Log out",
+              Container(
+                color: onSecondary,
+                child: AppButton(
+                  onTab: () async {
+                    await FirebaseServices().googleSignOut();
+                    await AuthServices().logOut();
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => LoginPage(),
+                      ),
+                    );
+                  },
+                  text: "Log out",
+                ),
               ),
             ],
           ),
         ),
       ),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: Icon(
-            Icons.drag_handle,
-            color: Theme.of(context).colorScheme.secondary,
+        backgroundColor: primary,
+        leading: Shimmer.fromColors(
+          baseColor: onSecondary,
+          highlightColor: purple500,
+          child: IconButton(
+            icon: Icon(
+              Icons.drag_handle,
+              color: onSecondary,
+            ),
+            onPressed: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
           ),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "LexiPAK",
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            Shimmer.fromColors(
+              baseColor: onSecondary,
+              highlightColor: purple500,
+              child: Text(
+                "Law App",
+                style: TextStyle(
+                    fontFamily: 'Suse', fontSize: 16, color: onSecondary),
+              ),
             ),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.edit,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  onPressed: () async {
-                    var chatCollectionRef = FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(user.uid)
-                        .collection('chats');
-                    QuerySnapshot chatSnapshot = await chatCollectionRef.get();
-                    int newChatCount = chatSnapshot.docs.length;
-
-                    setState(() {
-                      chatCount = newChatCount;
-                      messages = [];
-                    });
-                  },
-                ),
-                PopupMenuButton<String>(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  onSelected: (String result) async {
-                    if (result == 'logout') {
-                      await FirebaseServices().googleSignOut();
-                      await AuthServices().logOut();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => LoginPage(),
-                        ),
-                      );
-                    }
-                  },
-                  itemBuilder: (BuildContext context) =>
-                      <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: 'logout',
-                      child: Text('Log Out'),
+                Shimmer.fromColors(
+                  baseColor: onSecondary,
+                  highlightColor: purple500,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.edit,
                     ),
-                  ],
+                    onPressed: () async {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => ChatScreen()));
+                    },
+                  ),
+                ),
+                Shimmer.fromColors(
+                  baseColor: onSecondary,
+                  highlightColor: purple500,
+                  child: PopupMenuButton<String>(
+                    color: onSecondary,
+                    icon: Icon(
+                      Icons.more_vert,
+                    ),
+                    onSelected: (String result) async {
+                      if (result == 'logout') {
+                        await FirebaseServices().googleSignOut();
+                        await AuthServices().logOut();
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => LoginPage(),
+                          ),
+                        );
+                      }
+                    },
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'logout',
+                        child: Text('Log Out'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             )
           ],
         ),
       ),
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(child: _buildUI(isDarkMode)),
+      backgroundColor: surface,
+      body: SafeArea(child: _buildUI()),
     );
   }
 
-  Widget _buildUI(bool isDarkMode) {
+  Widget _buildUI() {
     return Stack(
       children: [
         Center(
@@ -340,7 +371,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ? Container()
                   : AvatarGlow(
                       startDelay: const Duration(milliseconds: 300),
-                      glowColor: Theme.of(context).colorScheme.secondary,
+                      glowColor: purple500,
                       glowShape: BoxShape.circle,
                       animate: true,
                       curve: Curves.fastOutSlowIn,
@@ -348,14 +379,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       repeat: true,
                       child: CircleAvatar(
                         radius: 40,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
                           child: Image.asset(
-                            isDarkMode
-                                ? "assets/images/ChatAppLogo.png"
-                                : "assets/images/ChatAppLogoDark.png",
+                            'assets/images/ChatBotLogo.png',
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -374,12 +401,22 @@ class _ChatScreenState extends State<ChatScreen> {
           onSend: _sendMessage,
           messages: messages,
           messageOptions: MessageOptions(
-            showTime: false,
+            showOtherUsersName: false,
+            maxWidth: MediaQuery.of(context).size.width / 1.5,
+            showCurrentUserAvatar: true,
+            messagePadding: EdgeInsets.all(16),
+            showTime:
+                false, // Set to true to display the time as shown in the image
             currentUserContainerColor:
-                isDarkMode ? Colors.purple[200] : Colors.purple[50],
-            currentUserTextColor: Theme.of(context).colorScheme.secondary,
-            containerColor: Colors.transparent,
-            textColor: Theme.of(context).colorScheme.secondary,
+                onSecondary, // Dark purple background color
+            currentUserTextColor: primary, // White text color for current user
+            containerColor:
+                Color(0xFF6A0DAD), // Slightly lighter purple for other users
+            textColor: Colors.white, // White text color for other users
+            borderRadius: 18.0, // Slightly rounded corners for the message box
+            timeTextColor: Colors.black, // Light grey color for the time text
+            timeFontSize: 10.0, // Small font size for time display
+            timePadding: EdgeInsets.only(top: 5), // Padding above the time text
           ),
           inputOptions: InputOptions(
             textController: textEditingController,
@@ -388,7 +425,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 padding: const EdgeInsets.all(4.0),
                 child: AvatarGlow(
                   startDelay: const Duration(milliseconds: 300),
-                  glowColor: Colors.cyan,
+                  glowColor: primary,
                   glowShape: BoxShape.circle,
                   animate: messagePending,
                   curve: Curves.fastOutSlowIn,
@@ -397,18 +434,20 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: CircleAvatar(
-                      backgroundColor: const Color.fromARGB(255, 91, 198, 98),
+                      backgroundColor: surface,
                       child: (messagePending || _isListening)
                           ? Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: CircularProgressIndicator(
-                                  color: Theme.of(context).colorScheme.primary),
+                                backgroundColor: onSecondary,
+                                color: purple500,
+                                strokeWidth: 5,
+                              ),
                             )
                           : IconButton(
-                              icon: Icon(Icons.send,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary), // Change the color to your desired color
+                              icon: Icon(Icons.send_outlined,
+                                  color: primary.withOpacity(
+                                      0.6)), // Change the color to your desired color
                               onPressed: send,
                             ),
                     ),
@@ -416,58 +455,42 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               );
             },
-            leading: [
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: (!_isListening)
-                    ? Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white30,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Icon(
-                            size: 30,
-                            Icons.message,
-                            color: Colors.cyan,
-                          ),
-                        ),
-                      )
-                    : Container(),
-              )
-            ],
             alwaysShowSend: true,
             sendOnEnter: true,
             inputDisabled: messagePending,
-            inputTextStyle:
-                TextStyle(color: Theme.of(context).colorScheme.secondary),
+            inputTextStyle: TextStyle(
+                color: onSecondary,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 1.2,
+                fontSize: 18),
             inputDecoration: InputDecoration(
-                hintText:
-                    (_isListening) ? "Speak now ..." : "Write a message...",
+                hintText: (_isListening == true)
+                    ? "Speak now ..."
+                    : "Write a message ...",
                 hintStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onSecondary,
+                  fontFamily: 'Suse',
+                  color: onSecondary,
                   fontSize: 18,
                 ),
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                    EdgeInsets.symmetric(vertical: 15, horizontal: 25),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: (messagePending)
+                  child: (messagePending == true)
                       ? Container()
                       : AvatarGlow(
                           startDelay: const Duration(milliseconds: 300),
-                          glowColor: Colors.cyanAccent,
+                          glowColor: surface,
                           glowShape: BoxShape.circle,
                           animate: _isListening,
                           curve: Curves.fastOutSlowIn,
                           duration: const Duration(milliseconds: 2000),
                           repeat: true,
                           child: IconButton(
-                            color: Colors.cyanAccent,
+                            color: Colors.transparent,
                             icon: Icon(
                               _isListening ? Icons.pause : Icons.mic,
-                              color: Colors.white,
+                              color: Colors.white70,
                             ),
                             onPressed: _listen,
                           ),
@@ -475,20 +498,20 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 border: OutlineInputBorder(
                   borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.primary,
+                fillColor:
+                    Theme.of(context).colorScheme.primary.withOpacity(0.5),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 2, color: Colors.cyanAccent),
-                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide(width: 2, color: Colors.deepPurple),
+                  borderRadius: BorderRadius.circular(14),
                 )),
-            cursorStyle:
-                CursorStyle(color: Theme.of(context).colorScheme.secondary),
+            cursorStyle: CursorStyle(color: onSecondary),
           ),
         ),
       ],
@@ -497,35 +520,32 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _sendMessage(ChatMessage chatMessage) async {
     ChatMessage message = ChatMessage(
-        user: laxiPakUser,
-        createdAt: DateTime.now(),
-        text: "An error Occured.");
+        user: botUser, createdAt: DateTime.now(), text: "An error Occured.");
     ;
     setState(() {
       messagePending = true;
-      users = [laxiPakUser];
+      users = [botUser];
       messages = [chatMessage, ...messages];
       scrollBottomOptionDisabled = false;
     });
     try {
       final query = chatMessage.text;
-      final url = Uri.https(
-          'chatai.seecs.edu.pk:8000', '/api/v1/predict/', {'query': query});
+      final url =
+          Uri.https('lawyer.logixos.com', '/api/v1/predict/', {'query': query});
 
       // Print the full URL
       // print('Requesting URL: $url');
 
       final res = await http.get(url);
-      // print('Response body: ${res.body}');
-
-      // If you want to decode and print the specific response
       final response = jsonDecode(res.body);
       message = ChatMessage(
-          user: laxiPakUser,
+          user: botUser,
           createdAt: DateTime.now(),
-          text: response["response"].toString());
+          text: response["response"].toString() +
+              "\n\n" +
+              response["sources"].toString());
     } catch (e) {
-      showSnackBar(context, e.toString());
+      print(e.toString());
     } finally {
       print(messagePending);
       setState(() {
@@ -548,7 +568,7 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() => _isListening = true);
         _speech!.listen(
           onResult: (val) => setState(() {
-            textEditingController.text = val.recognizedWords;
+            textEditingController.text += ' ' + val.recognizedWords;
           }),
         );
       }

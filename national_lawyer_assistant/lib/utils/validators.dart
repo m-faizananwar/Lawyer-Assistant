@@ -39,13 +39,19 @@ class Validators {
     return null;
   }
 
-  static String? validateConfirmPassword(String? value, String password) {
+  static String? validatePhoneNumber(String? value) {
+    // Check if the phone number is empty
     if (value == null || value.isEmpty) {
-      return 'Confirm Password Required!';
+      return 'Phone number is required';
     }
-    if (value != password) {
-      return 'Passwords do not match!';
+
+    // Regular expression for validating phone numbers
+    final RegExp phoneRegExp = RegExp(r'^[0-9]{10,15}$');
+
+    if (!phoneRegExp.hasMatch(value)) {
+      return 'Please enter a valid phone number';
     }
-    return null;
+
+    return null; // Return null if the phone number is valid
   }
 }

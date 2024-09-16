@@ -1,11 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:national_lawyer_assistant/Login/Google%20Login/verify_email.dart';
+import 'package:national_lawyer_assistant/Screens/signup/ui/verify_email.dart';
 import 'package:national_lawyer_assistant/Screens/splashScreen/ui/splash_screen.dart';
+import 'package:national_lawyer_assistant/utils/const.dart';
 // import 'package:national_lawyer_assistant/splash.dart';
-
-import 'Login/Screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,11 +84,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         colorScheme: ColorScheme.light(
-          surface: Colors.deepPurple[100]!,
-          primary: Colors.grey[300]!,
-          onPrimary: Colors.grey[400]!,
-          secondary: Colors.black!,
-          onSecondary: Colors.grey[600]!,
+          surface: surface,
+          primary: primary,
+          onPrimary: onPrimary,
+          secondary: secondary,
+          onSecondary: onSecondary,
         ),
         textTheme: const TextTheme(
           displayLarge: TextStyle(color: Colors.black),
@@ -107,33 +106,6 @@ class MyApp extends StatelessWidget {
           labelLarge: TextStyle(color: Colors.black),
           labelMedium: TextStyle(color: Colors.black),
           labelSmall: TextStyle(color: Colors.black),
-        ),
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.dark(
-          surface: Color.fromARGB(255, 0, 0, 0),
-          primary: Colors.grey[900]!,
-          onPrimary: Colors.grey[800]!,
-          secondary: Colors.white,
-          onSecondary: Colors.grey[600]!,
-        ),
-        textTheme: const TextTheme(
-          displayLarge: TextStyle(color: Colors.white),
-          displayMedium: TextStyle(color: Colors.white),
-          displaySmall: TextStyle(color: Colors.white),
-          headlineLarge: TextStyle(color: Colors.white),
-          headlineMedium: TextStyle(color: Colors.white),
-          headlineSmall: TextStyle(color: Colors.white),
-          titleLarge: TextStyle(color: Colors.white),
-          titleMedium: TextStyle(color: Colors.white),
-          titleSmall: TextStyle(color: Colors.white),
-          bodyLarge: TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Colors.white),
-          bodySmall: TextStyle(color: Colors.white),
-          labelLarge: TextStyle(color: Colors.white),
-          labelMedium: TextStyle(color: Colors.white),
-          labelSmall: TextStyle(color: Colors.white),
         ),
       ),
     );
